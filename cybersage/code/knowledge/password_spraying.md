@@ -1,0 +1,2 @@
+## Password spraying
+Password spraying tries one or a few common passwords against many different accounts, so each account sees only a few failures and may not trigger a lockout. In logs it looks like FAIL results for many different users from the same source address. Defensive steps: block or rate-limit the source, require multi-factor authentication, check whether any of the targeted accounts later show a SUCCESS, and ban commonly used passwords.

@@ -1,0 +1,6 @@
+{
+  "status": "invalid_input",
+  "message": "No log entries provided. Paste some security log lines.",
+  "findings": [],
+  "engine": "none"
+}

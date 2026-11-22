@@ -1,0 +1,3 @@
+Analyze the following security logs. Identify suspicious activity, explain possible threats, assign severity, and suggest defensive actions. Use only the provided evidence and state when information is insufficient.
+
+{log_entries}

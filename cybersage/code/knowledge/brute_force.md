@@ -1,0 +1,2 @@
+## Brute-force login attempts
+A brute-force attempt tries many passwords against one account. In logs it looks like several FAIL results for the same user from the same source address in a short time. If a SUCCESS for that user and address follows the failures, the guess may have worked, or the real user may simply have mistyped. Defensive steps: verify with the account owner, reset the password, enable multi-factor authentication, add account lockout or rate limiting, and review other activity from the same address.

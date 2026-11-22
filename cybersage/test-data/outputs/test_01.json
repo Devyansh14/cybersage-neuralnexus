@@ -1,0 +1,27 @@
+{
+  "status": "ok",
+  "summary": "1 possible issue(s) found; verify each before acting.",
+  "findings": [
+    {
+      "title": "Repeated failed logins followed by success",
+      "evidence": [
+        "10:01:02 LOGIN user=test1 src=192.0.2.10 result=FAIL",
+        "10:01:05 LOGIN user=test1 src=192.0.2.10 result=FAIL",
+        "10:01:08 LOGIN user=test1 src=192.0.2.10 result=FAIL",
+        "10:02:10 LOGIN user=test1 src=192.0.2.10 result=SUCCESS"
+      ],
+      "possible_threat": "Repeated authentication failures may indicate a password-guessing attempt that eventually succeeded.",
+      "severity": "Medium",
+      "confidence": "Medium",
+      "rationale": "3 failures for user test1 from 192.0.2.10 within 68 seconds, then a success. Could also be the real user mistyping.",
+      "recommended_actions": [
+        "Verify with the account owner that the successful login was theirs",
+        "Review other activity from this address",
+        "Consider a password reset and enabling MFA"
+      ],
+      "limitations": "These events alone do not confirm an attack.",
+      "evidence_verified": true
+    }
+  ],
+  "engine": "offline-heuristic"
+}

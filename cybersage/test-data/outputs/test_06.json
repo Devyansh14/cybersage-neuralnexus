@@ -1,0 +1,27 @@
+{
+  "status": "ok",
+  "summary": "1 possible issue(s) found; verify each before acting.",
+  "findings": [
+    {
+      "title": "Repeated failed logins",
+      "evidence": [
+        "15:00:01 LOGIN user=test2 src=192.0.2.44 result=FAIL",
+        "15:00:04 LOGIN user=test2 src=192.0.2.44 result=FAIL",
+        "15:00:07 LOGIN user=test2 src=192.0.2.44 result=FAIL",
+        "15:00:10 LOGIN user=test2 src=192.0.2.44 result=FAIL",
+        "15:00:13 LOGIN user=test2 src=192.0.2.44 result=FAIL"
+      ],
+      "possible_threat": "Repeated failures may indicate a password-guessing attempt.",
+      "severity": "Medium",
+      "confidence": "Medium",
+      "rationale": "5 failures for user test2 from 192.0.2.44 within 12 seconds, with no success shown.",
+      "recommended_actions": [
+        "Check whether the user is locked out or forgot their password",
+        "Consider rate limiting or temporary blocking of the source"
+      ],
+      "limitations": "Failed logins have many innocent causes; no success is visible in the provided logs.",
+      "evidence_verified": true
+    }
+  ],
+  "engine": "offline-heuristic"
+}

@@ -1,0 +1,29 @@
+{
+  "status": "ok",
+  "summary": "1 possible issue(s) found; verify each before acting.",
+  "findings": [
+    {
+      "title": "Possible port scan",
+      "evidence": [
+        "11:30:00 CONN_DENY src=198.51.100.20 dst=10.0.0.5 dport=22",
+        "11:30:01 CONN_DENY src=198.51.100.20 dst=10.0.0.5 dport=23",
+        "11:30:02 CONN_DENY src=198.51.100.20 dst=10.0.0.5 dport=80",
+        "11:30:03 CONN_DENY src=198.51.100.20 dst=10.0.0.5 dport=443",
+        "11:30:04 CONN_DENY src=198.51.100.20 dst=10.0.0.5 dport=445",
+        "11:30:05 CONN_DENY src=198.51.100.20 dst=10.0.0.5 dport=3306"
+      ],
+      "possible_threat": "Blocked connections to many different ports from one address may indicate port scanning.",
+      "severity": "Medium",
+      "confidence": "Medium",
+      "rationale": "6 distinct destination ports probed by 198.51.100.20 within 5 seconds.",
+      "recommended_actions": [
+        "Block or rate-limit the source",
+        "Confirm only required ports are exposed",
+        "Watch for later successful connections from this address"
+      ],
+      "limitations": "Scans are common internet background noise; the logs show no successful access.",
+      "evidence_verified": true
+    }
+  ],
+  "engine": "offline-heuristic"
+}

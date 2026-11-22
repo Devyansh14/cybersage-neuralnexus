@@ -1,0 +1,2 @@
+## Privilege changes
+Adding an account to a powerful group such as admin, administrators, sudo, wheel or root widens what that account can do. Attackers who gain access often do this to keep control. Legitimate administrators do it too, so the key question is whether the change was expected and approved. Defensive steps: confirm with the change owner, review who made the change and when, remove the privilege if it was not approved, and review that account's recent activity.

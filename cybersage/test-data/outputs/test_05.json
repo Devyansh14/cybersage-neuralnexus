@@ -1,0 +1,24 @@
+{
+  "status": "ok",
+  "summary": "1 possible issue(s) found; verify each before acting.",
+  "findings": [
+    {
+      "title": "Account added to privileged group",
+      "evidence": [
+        "14:10:30 GROUP_ADD user=svc_test group=admin by=unknown"
+      ],
+      "possible_threat": "Granting administrative rights may indicate privilege escalation, or an approved admin change.",
+      "severity": "High",
+      "confidence": "Low",
+      "rationale": "Privilege changes are high impact, but the logs do not show whether the change was approved.",
+      "recommended_actions": [
+        "Confirm the change with its owner",
+        "Review who made it and when",
+        "Remove the privilege if unapproved"
+      ],
+      "limitations": "Cannot tell from this line whether the change was authorised.",
+      "evidence_verified": true
+    }
+  ],
+  "engine": "offline-heuristic"
+}

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CyberSage</title>
+<style>
+  :root { --bg:#0f1720; --card:#17222e; --ink:#e6edf3; --mute:#8b9bb0; --line:#26364a; --accent:#3fb8af;
+          --low:#4caf7a; --med:#e0b341; --high:#e8833a; --crit:#e5534b; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.5 system-ui, sans-serif; }
+  main { max-width: 860px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { margin: 0 0 4px; font-size: 28px; }
+  .sub { color: var(--mute); margin: 0 0 20px; }
+  textarea { width:100%; min-height:180px; background:var(--card); color:var(--ink); border:1px solid var(--line);
+             border-radius:8px; padding:12px; font:14px/1.5 ui-monospace, Menlo, monospace; }
+  .row { display:flex; gap:8px; flex-wrap:wrap; margin:12px 0; }
+  button { background:var(--accent); color:#06231f; border:0; border-radius:8px; padding:10px 16px; font-weight:600; cursor:pointer; }
+  button.secondary { background:transparent; color:var(--ink); border:1px solid var(--line); }
+  .warn { color:var(--mute); font-size:13px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px; margin:14px 0; }
+  .badge { display:inline-block; padding:2px 10px; border-radius:99px; font-size:13px; font-weight:700; color:#10161d; }
+  .Low{background:var(--low)} .Medium{background:var(--med)} .High{background:var(--high)} .Critical{background:var(--crit)}
+  pre { background:#0b1118; border:1px solid var(--line); padding:10px; border-radius:6px; overflow-x:auto; font-size:13px; margin:8px 0; }
+  .meta { color:var(--mute); font-size:13px; }
+  .err { border-color: var(--crit); }
+</style>
+</head>
+<body>
+<main>
+  <h1>CyberSage</h1>
+  <p class="sub">Paste security log entries. Get evidence-backed findings, severity and defensive next steps.</p>
+  <textarea id="logs" placeholder="10:01:02 LOGIN user=test1 src=192.0.2.10 result=FAIL"></textarea>
+  <div class="row">
+    <button id="go">Analyze logs</button>
+    <button class="secondary" data-s="brute">Sample: failed logins</button>
+    <button class="secondary" data-s="scan">Sample: port scan</button>
+    <button class="secondary" data-s="normal">Sample: normal</button>
+  </div>
+  <p class="warn">Use synthetic or sanitized logs only. Do not paste real passwords, tokens or personal data.</p>
+  <div id="out"></div>
+</main>
+<script>
+const SAMPLES = {
+  brute: "10:01:02 LOGIN user=test1 src=192.0.2.10 result=FAIL\n10:01:05 LOGIN user=test1 src=192.0.2.10 result=FAIL\n10:01:08 LOGIN user=test1 src=192.0.2.10 result=FAIL\n10:02:10 LOGIN user=test1 src=192.0.2.10 result=SUCCESS",
+  scan: [22,23,80,443,445,3306,3389].map((p,i)=>`11:30:0${i} CONN_DENY src=198.51.100.20 dst=10.0.0.5 dport=${p}`).join("\n"),
+  normal: "09:00:01 LOGIN user=demo_a src=198.51.100.7 result=SUCCESS\n09:15:44 LOGOUT user=demo_a src=198.51.100.7 result=OK\n09:20:10 LOGIN user=demo_b src=198.51.100.8 result=SUCCESS"
+};
+const $ = s => document.querySelector(s);
+document.querySelectorAll("[data-s]").forEach(b => b.onclick = () => $("#logs").value = SAMPLES[b.dataset.s]);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+$("#go").onclick = async () => {
+  const out = $("#out"); out.innerHTML = '<div class="card">Analyzing…</div>';
+  try {
+    const r = await fetch("/api/analyze", {method:"POST", headers:{"Content-Type":"application/json"},
+                                           body: JSON.stringify({logs: $("#logs").value})});
+    render(await r.json());
+  } catch (e) { out.innerHTML = '<div class="card err">Request failed: ' + esc(e.message) + '</div>'; }
+};
+
+function render(d) {
+  const out = $("#out");
+  if (d.status === "invalid_input") { out.innerHTML = `<div class="card err"><b>Invalid input.</b> ${esc(d.message)}</div>`; return; }
+  let h = `<div class="card"><b>${esc(d.summary)}</b>
+    <div class="meta">Status: ${esc(d.status)} · Engine: ${esc(d.engine)}${d.redactions ? " · " + d.redactions + " item(s) redacted" : ""}</div>
+    ${d.note ? `<div class="meta">${esc(d.note)}</div>` : ""}</div>`;
+  for (const f of d.findings || []) {
+    h += `<div class="card"><h3 style="margin:0 0 6px">${esc(f.title)}
+      <span class="badge ${esc(f.severity)}">${esc(f.severity)}</span></h3>
+      <div class="meta">Confidence: ${esc(f.confidence)} · Evidence ${f.evidence_verified ? "verified in input" : "NOT fully verified"}</div>
+      <p><b>Possible threat:</b> ${esc(f.possible_threat)}</p>
+      <pre>${esc((f.evidence||[]).join("\n"))}</pre>
+      <p><b>Why:</b> ${esc(f.rationale)}</p>
+      <b>Recommended actions</b><ul>${(f.recommended_actions||[]).map(a=>`<li>${esc(a)}</li>`).join("")}</ul>
+      <p class="meta"><b>Limitations:</b> ${esc(f.limitations)}</p></div>`;
+  }
+  out.innerHTML = h;
+}
+</script>
+</body>
+</html>

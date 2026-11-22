@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: cybersage
+    runtime: python
+    plan: free
+    buildCommand: "echo no build step"
+    startCommand: python code/app.py
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: CYBERSAGE_MODEL
+        value: gpt-4o-mini

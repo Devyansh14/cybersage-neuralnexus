@@ -1,0 +1,6 @@
+{
+  "status": "insufficient_information",
+  "summary": "Too few log entries to judge. Provide more context (at least a few related lines).",
+  "findings": [],
+  "engine": "offline-heuristic"
+}

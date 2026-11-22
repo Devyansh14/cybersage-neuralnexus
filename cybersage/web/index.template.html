@@ -1,0 +1,180 @@
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>CyberSage</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one working column. Input on top, findings below, a second tab for the live test table.
+   Palette: slate neutrals with a cool teal accent; severity colors are separate from the accent. */
+:root {
+  --bg: #f3f6f8; --surface: #ffffff; --ink: #14202b; --mute: #566676; --line: #d5dee6;
+  --accent: #0f766e; --accent-ink: #ffffff; --code-bg: #eaf0f4;
+  --sev-low: #2f7d4f; --sev-med: #9a6b00; --sev-high: #b4531a; --sev-crit: #b3261e;
+  --ok: #2f7d4f; --bad: #b3261e;
+  --font-head: "Space Grotesk", system-ui, sans-serif; --font-body: "Inter", system-ui, sans-serif; --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0e151c; --surface: #151f29; --ink: #e5edf3; --mute: #93a4b3; --line: #263544;
+  --accent: #4fd1c5; --accent-ink: #062622; --code-bg: #0b1218;
+  --sev-low: #5ec58a; --sev-med: #e0b341; --sev-high: #f0924d; --sev-crit: #ff7b72; --ok: #5ec58a; --bad: #ff7b72; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0e151c; --surface: #151f29; --ink: #e5edf3; --mute: #93a4b3; --line: #263544;
+  --accent: #4fd1c5; --accent-ink: #062622; --code-bg: #0b1218;
+  --sev-low: #5ec58a; --sev-med: #e0b341; --sev-high: #f0924d; --sev-crit: #ff7b72; --ok: #5ec58a; --bad: #ff7b72; color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.55 var(--font-body);
+  padding-block: 28px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+main { max-width: 880px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+h1 { font: 700 30px/1.1 var(--font-head); margin: 0; letter-spacing: -0.01em; }
+h2, h3 { font-family: var(--font-head); margin: 0; text-wrap: balance; }
+.lede { color: var(--mute); margin: 6px 0 0; max-width: 62ch; }
+.engine-note { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 10px 14px; font-size: 14px; color: var(--mute); }
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); }
+.tab { background: none; border: 0; border-bottom: 2px solid transparent; color: var(--mute); padding: 10px 14px; font: 600 15px var(--font-body); cursor: pointer; }
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+.tab:focus-visible, button:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+label.field { font: 600 13px var(--font-body); letter-spacing: 0.04em; text-transform: uppercase; color: var(--mute); }
+textarea { width: 100%; min-height: 190px; margin-top: 6px; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 12px; font: 14px/1.55 var(--font-mono); resize: vertical; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; }
+button.primary { background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 8px; padding: 10px 18px; font: 600 15px var(--font-body); cursor: pointer; }
+button.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 9px 14px; font: 500 14px var(--font-body); cursor: pointer; }
+.hint { font-size: 13px; color: var(--mute); margin: 0; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.panel.err { border-color: var(--bad); }
+.meta { font-size: 13px; color: var(--mute); }
+.finding-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.sev { font: 700 12px var(--font-body); letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 10px; border-radius: 99px; border: 1.5px solid currentColor; }
+.sev.Low { color: var(--sev-low); } .sev.Medium { color: var(--sev-med); } .sev.High { color: var(--sev-high); } .sev.Critical { color: var(--sev-crit); }
+pre { margin: 0; background: var(--code-bg); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; overflow-x: auto; font: 13px/1.5 var(--font-mono); }
+ul { margin: 4px 0 0; padding-left: 20px; }
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; min-width: 720px; font-size: 14px; }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 600 12px var(--font-body); letter-spacing: 0.05em; text-transform: uppercase; color: var(--mute); }
+td.num { font-variant-numeric: tabular-nums; }
+.pf { font-weight: 700; } .pf.Pass { color: var(--ok); } .pf.Fail { color: var(--bad); }
+.theme { margin-left: auto; }
+[hidden] { display: none !important; }
+@media (prefers-reduced-motion: no-preference) { button { transition: background-color .15s; } }
+</style>
+
+<main>
+  <header>
+    <div class="row" style="align-items:flex-start">
+      <div><h1>CyberSage</h1>
+      <p class="lede">Paste security log entries. Get findings with the exact evidence, a severity, how sure it is, and defensive next steps.</p></div>
+      <button class="ghost theme" id="themeBtn" type="button" aria-label="Toggle theme">Theme</button>
+    </div>
+  </header>
+
+  <div class="engine-note">This page runs CyberSage's offline rule-based engine in your browser. Nothing is sent anywhere. The LLM version (OpenAI plus retrieval notes) runs in the Python app from the project repository when an API key is set. Use synthetic logs only.</div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tab-analyze" aria-selected="true" aria-controls="view-analyze">Analyze logs</button>
+    <button class="tab" role="tab" id="tab-tests" aria-selected="false" aria-controls="view-tests">Test table</button>
+  </div>
+
+  <section id="view-analyze" role="tabpanel" aria-labelledby="tab-analyze" style="display:flex;flex-direction:column;gap:14px">
+    <div>
+      <label class="field" for="logs">Log entries</label>
+      <textarea id="logs" spellcheck="false"></textarea>
+    </div>
+    <div class="row">
+      <button class="primary" id="go" type="button">Analyze logs</button>
+      <button class="ghost" type="button" data-sample="brute">Failed logins then success</button>
+      <button class="ghost" type="button" data-sample="scan">Port scan</button>
+      <button class="ghost" type="button" data-sample="spray">Password spraying</button>
+      <button class="ghost" type="button" data-sample="normal">Normal activity</button>
+    </div>
+    <p class="hint">Passwords, tokens, API keys and email addresses are masked before analysis.</p>
+    <div id="out" aria-live="polite" style="display:flex;flex-direction:column;gap:14px"></div>
+  </section>
+
+  <section id="view-tests" role="tabpanel" aria-labelledby="tab-tests" hidden style="display:flex;flex-direction:column;gap:14px">
+    <p class="hint" id="testSummary"></p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>No.</th><th>Input</th><th>Type</th><th>Expected output</th><th>Actual output</th><th>Result</th></tr></thead>
+      <tbody id="testBody"></tbody>
+    </table></div>
+  </section>
+</main>
+
+<script>
+/*ENGINE*/
+</script>
+<script>
+const CASES = /*CASES*/;
+const SAMPLES = {
+  brute: "10:01:02 LOGIN user=test1 src=192.0.2.10 result=FAIL\n10:01:05 LOGIN user=test1 src=192.0.2.10 result=FAIL\n10:01:08 LOGIN user=test1 src=192.0.2.10 result=FAIL\n10:02:10 LOGIN user=test1 src=192.0.2.10 result=SUCCESS",
+  scan: [22,23,80,443,445,3306].map((p,i)=>"11:30:0"+i+" CONN_DENY src=198.51.100.20 dst=10.0.0.5 dport="+p).join("\n"),
+  spray: ["alice_test","bob_test","carol_test","dave_test"].map((u,i)=>"12:00:0"+(1+i*2)+" LOGIN user="+u+" src=203.0.113.9 result=FAIL").join("\n"),
+  normal: "09:00:01 LOGIN user=demo_a src=198.51.100.7 result=SUCCESS\n09:15:44 LOGOUT user=demo_a src=198.51.100.7 result=OK\n09:20:10 LOGIN user=demo_b src=198.51.100.8 result=SUCCESS"
+};
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+$("#logs").value = SAMPLES.brute;
+document.querySelectorAll("[data-sample]").forEach(b => b.addEventListener("click", () => { $("#logs").value = SAMPLES[b.dataset.sample]; run(); }));
+$("#go").addEventListener("click", run);
+
+function run() { render(CyberSage.analyze($("#logs").value)); }
+
+function render(d) {
+  const out = $("#out");
+  if (d.status === "invalid_input") { out.innerHTML = '<div class="panel err"><b>Invalid input.</b> ' + esc(d.message) + '</div>'; return; }
+  let h = '<div class="panel"><b>' + esc(d.summary) + '</b><div class="meta">Status: ' + esc(d.status) + ' · Engine: ' + esc(d.engine) + (d.redactions ? ' · ' + d.redactions + ' item(s) masked' : '') + '</div></div>';
+  (d.findings || []).forEach(f => {
+    h += '<article class="panel"><div class="finding-head"><h3>' + esc(f.title) + '</h3><span class="sev ' + esc(f.severity) + '">' + esc(f.severity) + '</span></div>' +
+      '<div class="meta">Confidence: ' + esc(f.confidence) + ' · Evidence ' + (f.evidence_verified ? 'found verbatim in your input' : 'NOT fully verified') + '</div>' +
+      '<div><b>Possible threat.</b> ' + esc(f.possible_threat) + '</div>' +
+      '<pre>' + esc((f.evidence || []).join("\n")) + '</pre>' +
+      '<div><b>Why this rating.</b> ' + esc(f.rationale) + '</div>' +
+      '<div><b>Recommended actions</b><ul>' + (f.recommended_actions || []).map(a => '<li>' + esc(a) + '</li>').join("") + '</ul></div>' +
+      '<div class="meta"><b>Limitations.</b> ' + esc(f.limitations) + '</div></article>';
+  });
+  out.innerHTML = h;
+}
+
+/* tabs */
+function showTab(name) {
+  ["analyze", "tests"].forEach(n => {
+    $("#view-" + n).hidden = n !== name;
+    $("#tab-" + n).setAttribute("aria-selected", String(n === name));
+  });
+  if (name === "tests") buildTests();
+}
+$("#tab-analyze").addEventListener("click", () => showTab("analyze"));
+$("#tab-tests").addEventListener("click", () => showTab("tests"));
+
+/* live test table: runs the same 12 cases as test-data/test_cases.json */
+const SEV = { Low: 0, Medium: 1, High: 2, Critical: 3 };
+function check(r, e) {
+  const p = [];
+  if (r.status !== e.status) p.push("status=" + r.status);
+  if (e.no_findings && r.findings.length) p.push("unexpected findings");
+  if (e.title_contains) {
+    const hit = r.findings.find(f => f.title.toLowerCase().includes(e.title_contains.toLowerCase()));
+    if (!hit) p.push("finding missing"); else if (e.min_severity && SEV[hit.severity] < SEV[e.min_severity]) p.push("severity too low"); else if (!hit.evidence_verified) p.push("evidence unverified");
+  }
+  if (e.min_redactions && (r.redactions || 0) < e.min_redactions) p.push("redaction missing");
+  if (e.output_must_not_contain && JSON.stringify(r).indexOf(e.output_must_not_contain) >= 0) p.push("secret leaked");
+  return p;
+}
+let built = false;
+function buildTests() {
+  if (built) return; built = true;
+  let pass = 0, rows = "";
+  CASES.forEach(c => {
+    const r = CyberSage.analyze(c.input), problems = check(r, c.expect), ok = !problems.length; if (ok) pass++;
+    const actual = r.status === "invalid_input" ? "invalid_input: " + r.message : r.status + ": " + (r.findings.map(f => f.title + " (" + f.severity + ")").join("; ") || "no findings");
+    rows += '<tr><td class="num">' + c.id + '</td><td>' + esc(c.name) + '</td><td>' + esc(c.type) + '</td><td>' + esc(c.expected) + '</td><td>' + esc(actual) + '</td><td><span class="pf ' + (ok ? "Pass" : "Fail") + '">' + (ok ? "Pass" : "Fail") + '</span>' + (ok ? "" : '<div class="meta">' + esc(problems.join("; ")) + '</div>') + '</td></tr>';
+  });
+  $("#testBody").innerHTML = rows;
+  $("#testSummary").textContent = pass + " of " + CASES.length + " tests pass with the offline engine, run live in this browser: 6 normal, 4 edge, 2 invalid.";
+}
+
+/* theme toggle */
+let dark = matchMedia("(prefers-color-scheme: dark)").matches;
+$("#themeBtn").addEventListener("click", () => { dark = !dark; document.documentElement.setAttribute("data-theme", dark ? "dark" : "light"); });
+
+run();
+</script>

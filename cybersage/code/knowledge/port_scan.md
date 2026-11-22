@@ -1,0 +1,2 @@
+## Port scanning
+A port scan probes many different network ports on a host to find which services are listening. In firewall or connection logs it looks like denied or blocked connections from one source address to many different destination ports within a short time. Scans are often automated and common on the internet, so severity is usually low to medium unless followed by access. Defensive steps: block or rate-limit the source, confirm only needed ports are exposed, and watch for later successful connections from the same address.

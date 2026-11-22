@@ -1,0 +1,6 @@
+{
+  "status": "ok",
+  "summary": "No suspicious pattern found in the provided entries.",
+  "findings": [],
+  "engine": "offline-heuristic"
+}

@@ -1,0 +1,9 @@
+<knowledge>
+{knowledge_context}
+</knowledge>
+
+<logs>
+{log_entries}
+</logs>
+
+Analyze the log entries above following your rules and return the JSON object.

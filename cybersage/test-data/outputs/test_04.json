@@ -1,0 +1,27 @@
+{
+  "status": "ok",
+  "summary": "1 possible issue(s) found; verify each before acting.",
+  "findings": [
+    {
+      "title": "Failed logins across many accounts from one source",
+      "evidence": [
+        "12:00:01 LOGIN user=alice_test src=203.0.113.9 result=FAIL",
+        "12:00:03 LOGIN user=bob_test src=203.0.113.9 result=FAIL",
+        "12:00:05 LOGIN user=carol_test src=203.0.113.9 result=FAIL",
+        "12:00:07 LOGIN user=dave_test src=203.0.113.9 result=FAIL"
+      ],
+      "possible_threat": "Failures against many different accounts from one address may indicate password spraying.",
+      "severity": "High",
+      "confidence": "Medium",
+      "rationale": "4 different users failed from 203.0.113.9 within 6 seconds.",
+      "recommended_actions": [
+        "Block or rate-limit the source address",
+        "Require MFA",
+        "Check whether any targeted account later shows a successful login"
+      ],
+      "limitations": "A shared office or proxy address could produce similar patterns.",
+      "evidence_verified": true
+    }
+  ],
+  "engine": "offline-heuristic"
+}

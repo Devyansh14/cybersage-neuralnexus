@@ -1,0 +1,6 @@
+{
+  "status": "invalid_input",
+  "message": "Input does not look like security log entries (no timestamps or key=value fields).",
+  "findings": [],
+  "engine": "none"
+}
